@@ -1,0 +1,24 @@
+1  #include "unpipc.h"
+2  void
+3  server(int readfd, int writefd)
+4  {
+5   int fd;
+6   ssize_t n;
+7   char buff[MAXLINE+1];
+8   /* получение полного имени из канала IPC */
+9   if ((n = Read(readfd, buff, MAXLINE)) == 0)
+10   err_quit("end-of-file while reading pathname"):
+11  buff[n] = '\0'; /* полное имя завершается 0 */
+12  if ((fd = open(buff, O_RDONLY)) < 0) {
+13   /* 4error: must tell client */
+14   snprintf(buff + n, sizeof(buff) – n, ": can't open. %s\n".
+15   strerror(errno)):
+16   n = strlen(buff);
+17   Write(writefd, buff, n);
+18  } else {
+19   /* файл успешно открыт и копируется в канал */
+20   while ( (n = Read(fd, buff, MAXLINE)) > 0)
+21    Write(writefd, buff, n);
+22   Close(fd);
+23  }
+24 }

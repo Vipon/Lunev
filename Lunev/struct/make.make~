@@ -1,0 +1,13 @@
+main: main.o V_VarLArray.o
+	$(CC) -o CFLAGS $@ $^
+
+main.o: main.c
+	$(CC) -c -o $@ $<
+
+V_VarLArray.o: V_VarLArray.c V_VarLArray.h
+	$(CC) -c -o $@ $^
+
+
+clean:
+	rm -fd *.o main
+

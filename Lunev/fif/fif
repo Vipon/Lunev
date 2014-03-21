@@ -1,0 +1,47 @@
+1  #include "fifo.h"
+2  void server(int, int);
+3  int
+4  main(int argc, char **argv)
+5  {
+6   int readfifo, writefifo, dummyfd, fd;
+7   char *ptr, buff[MAXLINE], fifoname[MAXLINE];
+8   pid_t pid;
+9   ssize_t n;
+10  /* создание FIFO сервера с известным именем. ОК, если уже существует */
+11  if ((mkfifo(SERV_FIFO, FILE_MODE) < 0) && (errno != EEXIST))
+12   err_sys("can't create %s", SERV_FIFO);
+13  /* открытие FIFO-cepвepa на чтение */
+14  readfifo = Open(SERV_FIFO, O_RDONLY, 0);
+15  dummyfd = Open(SERV_FIFO, O_WRONLY, 0); /* не используется */
+16  while ((n = Readline(readfifo, buff, MAXLINE)) > 0) {
+17   if (buff[n-1] == '\n')
+18    n--; /* delete newline from readline() */
+19   buff[n] = '\0'; /* полное имя, завершаемое 0 */
+20   if ((ptr = strchr(buff, ' ')) == NULL) {
+21    err_msg("bogus request: ls", buff);
+22    continue;
+23   }
+24   *ptr++ = 0; /* идентификатор процесса, указатель на имя файла */
+25   pid = atol(buff);
+26   snprintf(fifoname, sizeof(fifoname), "/tmp/fifo.%ld", (long) pid);
+27   if ( (writefifo = open(fifoname, O_WRONLY, 0)) < 0) {
+28    err_msg("cannot open: ls", fifoname);
+29    continue;
+30   }
+31   if ((fd = open(ptr, O_RDONLY)) < 0) {
+32    /* ошибка, нужно сообщить клиенту */
+33    snprintf(buff + n, sizeof(buff) – n, ": can't open, %s\n",
+34     strerror(errno));
+35    n = strlen(ptr);
+36    Write(writefifo, ptr, n);
+37    Close(writefifo);
+38
+39   } else {
+40    /* успешное открытие, копируем файл */
+41    while ((n = Read(fd, buff, MAXLINE)) > 0)
+42     Write(writefifo, buff, n);
+43    Close(fd);
+44    Close(writefifo);
+45   }
+46  }
+47 }

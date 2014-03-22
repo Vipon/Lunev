@@ -12,7 +12,7 @@
 
 V_VarLArray* construct ( unsigned int len )
 {
-	V_VarLArray* Varr = (V_VarLArray*) malloc ( sizeof(V_VarLArray) );
+	V_VarLArray* Varr = (V_VarLArray*) calloc ( 1, sizeof(V_VarLArray) );
 	if ( !Varr )
 	{
 		ERROR("construct", "memory for Varr isn't allocation");
@@ -73,7 +73,7 @@ int resize ( V_VarLArray *Varr, unsigned int nLen )
 {
 	if ( !Varr )
 	{
-		ERROR("insert", "*Varr isn't valid" );
+		ERROR("resize", "*Varr isn't valid" );
 		errno = EBADR;
 		return -1;
 	}
@@ -83,45 +83,38 @@ int resize ( V_VarLArray *Varr, unsigned int nLen )
 	if ( !VC )
 	{
 		ERROR("resize", "construct problem");
+		errno = EADDRNOTAVAIL;
 		return -1;
 	}
 	int i = 0;
 	for ( i = 0; i < Varr -> length; ++i )
 	{
-		if ( copy ( &(Varr -> array[i]), &(VC -> array[i]) ) )
-		{
-			ERROR("resize", "copy problem");
-			return -1;
-		}
+		copy ( &(Varr -> array[i]), &(VC -> array[i]) );
 	}
 	//end copy data
 
-	if ( !(Varr -> array) )
-	{
-		ERROR("resize", "array == 0");
-		return -1;
-	}
-	else		
+	if ( Varr -> array )
 		free ( Varr -> array );	
+	
+	
 	Varr -> array = (Elem_of_Array*) calloc ( nLen,  sizeof(Elem_of_Array) );
 
 	if ( !(Varr -> array) )
 	{
 		ERROR("relen", "memory for Varr -> array isn't allocation");
+		destroy ( VC );
 		errno = ENOMEM;
 		return -1;
 	}
-	for ( i = 0; i < nLen; ++i )
+	
+	for ( i = 0; i < VC -> length; ++i )
 	{
-		if ( copy ( &(VC -> array[i]), &(Varr -> array[i]) ) )
-		{
-			ERROR("resize", "copy problem");
-			return -1;
-		}
+		copy ( &(VC -> array[i]), &(Varr -> array[i]) );
 	}
 	
 	Varr -> length = nLen;
 	Varr -> end = &(Varr -> array[nLen-1]);
+	destroy ( VC );
 	errno = 0;
 	return 0;	
 }
@@ -137,7 +130,8 @@ int destroy ( V_VarLArray *Varr )
 		return -1;
 	}
 
-	free ( Varr -> array );
+	if ( Varr -> array )
+		free ( Varr -> array );
 	free ( Varr );
 	
 	errno = 0;

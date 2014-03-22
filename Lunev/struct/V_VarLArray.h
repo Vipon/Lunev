@@ -13,7 +13,7 @@ typedef struct Elem_of_Array {
 
 typedef struct V_VarLArray {
 	
-	unsigned int length;
+	unsigned long long length;
 	Elem_of_Array *array;
 	Elem_of_Array *end;
 

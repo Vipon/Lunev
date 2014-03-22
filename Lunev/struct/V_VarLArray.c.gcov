@@ -1,0 +1,274 @@
+        -:    0:Source:V_VarLArray.c
+        -:    0:Graph:V_VarLArray.gcno
+        -:    0:Data:V_VarLArray.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:#define ERROR1(func, reason)	printf ( "ERROR: In function %s, %s.\n", func, reason );
+        -:    2:
+        -:    3:#define ERROR(func, reason) 	printf ("");
+        -:    4://C Headers
+        -:    5:#include <stdio.h>
+        -:    6:#include <stdlib.h>
+        -:    7:#include <errno.h>
+        -:    8://V_VarLArray Headers
+        -:    9:#include "V_VarLArray.h"
+        -:   10:
+        -:   11://*********************************************************************
+        -:   12:
+      109:   13:V_VarLArray* construct ( unsigned int len )
+        -:   14:{
+      109:   15:	V_VarLArray* Varr = (V_VarLArray*) calloc ( 1, sizeof(V_VarLArray) );
+      109:   16:	if ( !Varr )
+        -:   17:	{
+        -:   18:		ERROR("construct", "memory for Varr isn't allocation");
+    #####:   19:		errno = ENOMEM;
+    #####:   20:		return NULL;
+        -:   21:	}
+        -:   22:		
+      109:   23:	Varr -> length = len;
+      109:   24:	Varr -> array = (Elem_of_Array*) calloc ( len , sizeof(Elem_of_Array) );
+      109:   25:	if ( !(Varr -> array) )
+        -:   26:	{
+        -:   27:		ERROR("construct", "memory for Varr -> array isn't allocation");
+       83:   28:		errno = ENOMEM;
+       83:   29:		free ( Varr );
+       83:   30:		return NULL;
+        -:   31:	}
+        -:   32:	
+       26:   33:	Varr -> end = &( Varr -> array[len-1] );
+        -:   34:
+       26:   35:	errno = 0;
+       26:   36:	return Varr;
+        -:   37:}
+        -:   38:
+        -:   39://*********************************************************************
+        -:   40:
+        5:   41:int insert ( V_VarLArray *Varr, unsigned int pos, Elem_of_Array *elem )
+        -:   42:{
+        5:   43:	if ( !Varr )
+        -:   44:	{
+        -:   45:		ERROR("insert", "*Varr isn't valid" );
+        1:   46:		errno = EBADR;
+        1:   47:		return -1;
+        -:   48:	}
+        4:   49:	if ( !elem )
+        -:   50:	{
+        -:   51:		ERROR("insert", "*elem isn't valid" );
+        1:   52:		errno = EBADR;
+        1:   53:		return -1;
+        -:   54:	}
+        -:   55:
+        -:   56:
+        -:   57:
+        3:   58:	if ( pos > ( Varr -> length ) )
+        -:   59:	{
+        -:   60:		ERROR("insert", "pos > length of array");
+        1:   61:		errno = EINVAL;
+        1:   62:		return -1;
+        -:   63:	}
+        -:   64:
+        2:   65:	Varr -> array[pos-1].data =  elem -> data;
+        2:   66:	errno = 0;
+        2:   67:	return 0;
+        -:   68:}
+        -:   69:
+        -:   70://*********************************************************************
+        -:   71:
+        4:   72:int resize ( V_VarLArray *Varr, unsigned int nLen )
+        -:   73:{
+        4:   74:	if ( !Varr )
+        -:   75:	{
+        -:   76:		ERROR("resize", "*Varr isn't valid" );
+        1:   77:		errno = EBADR;
+        1:   78:		return -1;
+        -:   79:	}
+        -:   80:
+        -:   81:	//Start copy data
+        3:   82:	V_VarLArray *VC = construct ( Varr -> length );
+        3:   83:	if ( !VC )
+        -:   84:	{
+        -:   85:		ERROR("resize", "construct problem");
+        1:   86:		errno = EADDRNOTAVAIL;
+        1:   87:		return -1;
+        -:   88:	}
+        2:   89:	int i = 0;
+       22:   90:	for ( i = 0; i < Varr -> length; ++i )
+        -:   91:	{
+       20:   92:		copy ( &(Varr -> array[i]), &(VC -> array[i]) );
+        -:   93:	}
+        -:   94:	//end copy data
+        -:   95:
+        2:   96:	if ( Varr -> array )
+        2:   97:		free ( Varr -> array );	
+        -:   98:	
+        -:   99:	
+        2:  100:	Varr -> array = (Elem_of_Array*) calloc ( nLen,  sizeof(Elem_of_Array) );
+        -:  101:
+        2:  102:	if ( !(Varr -> array) )
+        -:  103:	{
+        -:  104:		ERROR("relen", "memory for Varr -> array isn't allocation");
+        1:  105:		destroy ( VC );
+        1:  106:		errno = ENOMEM;
+        1:  107:		return -1;
+        -:  108:	}
+        -:  109:	
+       11:  110:	for ( i = 0; i < VC -> length; ++i )
+        -:  111:	{
+       10:  112:		copy ( &(VC -> array[i]), &(Varr -> array[i]) );
+        -:  113:	}
+        -:  114:	
+        1:  115:	Varr -> length = nLen;
+        1:  116:	Varr -> end = &(Varr -> array[nLen-1]);
+        1:  117:	destroy ( VC );
+        1:  118:	errno = 0;
+        1:  119:	return 0;	
+        -:  120:}
+        -:  121:
+        -:  122://*********************************************************************
+        -:  123:
+       26:  124:int destroy ( V_VarLArray *Varr )
+        -:  125:{
+       26:  126:	if ( !Varr )
+        -:  127:	{
+        -:  128:		ERROR("insert", "*Varr isn't valid" );
+    #####:  129:		errno = ENOMEM;
+    #####:  130:		return -1;
+        -:  131:	}
+        -:  132:
+       26:  133:	if ( Varr -> array )
+       25:  134:		free ( Varr -> array );
+       26:  135:	free ( Varr );
+        -:  136:	
+       26:  137:	errno = 0;
+       26:  138:	return 0;
+        -:  139:}
+        -:  140:
+        -:  141://*********************************************************************
+        -:  142:
+       33:  143:int copy ( Elem_of_Array *source, Elem_of_Array *destination )
+        -:  144:{	
+       33:  145:	if ( !source )
+        -:  146:	{
+        -:  147:		ERROR("copy", "*source isn't valid");
+        1:  148:		errno = EBADR;
+        1:  149:		return -1;
+        -:  150:	}
+       32:  151:	if ( !destination )
+        -:  152:	{
+        -:  153:		ERROR("copy", "*destination isn't valid");
+        1:  154:		errno = EBADR;
+        1:  155:		return -1;
+        -:  156:	}
+        -:  157:	
+       31:  158:	destination -> data = source -> data; 
+       31:  159:	errno = 0;
+       31:  160:	return 0;
+        -:  161:}
+        -:  162:
+        -:  163://*********************************************************************
+        -:  164:
+        2:  165:int clear ( Elem_of_Array *elem )
+        -:  166:{
+        2:  167:	if ( !elem )
+        -:  168:	{
+        -:  169:		ERROR("clear", "*elem isn't valid");
+        1:  170:		errno = EBADR;
+        1:  171:		return -1;
+        -:  172:	}
+        -:  173:
+        1:  174:	elem -> data = 0;
+        1:  175:	errno = 0;
+        1:  176:	return 0;
+        -:  177:}
+        -:  178:
+        -:  179://*********************************************************************
+        -:  180:
+       13:  181:int print ( Elem_of_Array *elem )
+        -:  182:{
+       13:  183:	if ( !elem )
+        -:  184:	{
+        -:  185:		ERROR("print", "*elem isn't valid" );
+        2:  186:		errno = EBADR;
+        2:  187:		return -1;
+        -:  188:	}
+        -:  189:
+       11:  190:	printf ( "%c\n", elem -> data );
+       11:  191:	errno = 0;
+       11:  192:	return 0;
+        -:  193:}
+        -:  194:
+        -:  195://*********************************************************************
+        -:  196:
+        2:  197:int getSize ( V_VarLArray *Varr )
+        -:  198:{
+        2:  199:	if ( !Varr )
+        -:  200:	{
+        -:  201:		ERROR("dump", "*Varr isn't valid");
+        1:  202:		errno = EBADR;
+        1:  203:		return -1;
+        -:  204:	}
+        -:  205:
+        1:  206:	errno = 0;
+        1:  207:	return Varr -> length;	
+        -:  208:}
+        -:  209:
+        -:  210://*********************************************************************
+        -:  211:
+        4:  212:Elem_of_Array *take ( V_VarLArray *Varr, unsigned int num )
+        -:  213:{
+        4:  214:	if ( !Varr )
+        -:  215:	{
+        -:  216:		ERROR("take", "Varr isn't valid`");
+        1:  217:		errno = EBADR;
+        1:  218:		return NULL;
+        -:  219:	}
+        3:  220:	if ( num >= Varr -> length )
+        -:  221:	{
+        -:  222:		ERROR("take", "num > length of array");
+        1:  223:		errno = EINVAL;
+        1:  224:		return NULL;
+        -:  225:	}
+        -:  226:	
+        2:  227:	errno = 0;
+        2:  228:	return &(Varr -> array[num]);	
+        -:  229:}
+        -:  230:
+        -:  231://*********************************************************************
+        -:  232:
+        -:  233:
+        4:  234:int Varr_for_each ( V_VarLArray *Varr, void *buf,\
+        -:  235:		    int (*func) ( Elem_of_Array *elem, void *buf ) )
+        -:  236:{
+        4:  237:	if ( !Varr )
+        -:  238:	{
+        -:  239:		ERROR("Varr_for_each", "*Varr isn't valid");
+        1:  240:		errno = EBADR;
+        1:  241:		return -1;
+        -:  242:	}
+        3:  243:	if ( !func )
+        -:  244:	{
+        -:  245:		ERROR("Varr_for_each", "*func isn't valid");
+        1:  246:		errno = EBADR;
+        1:  247:		return -1;
+        -:  248:	}
+        -:  249:	
+        2:  250:	int i = 0;
+        2:  251:	int result = 0;
+       12:  252:	for ( i = 0; i < Varr -> length; ++i )
+        -:  253:	{
+       11:  254:		result = (*func) ( &(Varr -> array[i]), buf  );
+       11:  255:		if ( result < 0 )
+        -:  256:		{
+        -:  257:			ERROR("Varr_for_each", "problem with exec func")
+        1:  258:			printf ( "On [%d] Elem_of_Array result = %d"\
+        -:  259:							, i, result );
+        1:  260:			errno = EINVAL; 
+        1:  261:			return -1;
+        -:  262:		}
+        -:  263:	}
+        -:  264:
+        1:  265:	errno = 0;
+        1:  266:	return 0;
+        -:  267:}
+        -:  268:
+        -:  269://********************************************************************

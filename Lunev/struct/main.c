@@ -61,8 +61,12 @@ int main ( int argc, char *argv[] )
 			return -1;
 		}
 		
+		
 		//Test destroy
-		result = destroy ( Varr );
+		errno = 0;
+		if ( Varr )
+			result = destroy ( Varr );
+
 		if (( ( result == 0 ) && ( errno != 0 ) ) ||\
 		    ( ( result != 0 ) && ( errno == 0 ) ))
 		{
@@ -78,7 +82,7 @@ int main ( int argc, char *argv[] )
 	//Test Resize
 	INFOG ( "Start test resize" );
 	INFOL ( "Prepare" );
-	//Prepare
+	//Prepare		
 	Varr = construct ( 10 );
 	STATUS ( "OK" );
 	
@@ -91,7 +95,7 @@ int main ( int argc, char *argv[] )
 		return -1;
 	}
 	else
-		STATUS ( "OK" );  
+		STATUS ( "OK" );/////////////////++++++++++++++++++++++++++++++++++++  
 	
 	INFOL ( "Test \"Not memory\"" );
 	result = resize ( Varr, 1000000000 );
@@ -103,8 +107,25 @@ int main ( int argc, char *argv[] )
 	}
 	else
 		STATUS ( "OK" );
+	destroy ( Varr );	
+	Varr = NULL;
 	
-	destroy ( Varr );
+	
+	INFOL ( "Test \"Not memory for array copy\"" );
+	Varr = construct ( 900000000 );
+	result = resize ( Varr, 100 );
+	if ( result == 0 || errno == 0 )
+	{
+		STATUS( "FAIL" );
+		destroy ( Varr );
+		return -1;
+	}
+	else
+	{
+		STATUS( "OK" );
+		destroy ( Varr );
+	}
+
 	Varr = construct ( 10 );
 	INFOL ( "Test \"Nolmal allocate\"" );
 	result = resize ( Varr, 100 );

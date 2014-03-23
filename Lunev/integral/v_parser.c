@@ -146,12 +146,36 @@ double GetN ( char *func, atribut *atr )
 	assert ( !checkInput ( func, atr, "GetT" ) );
 	
 	double value = 0;
-	
-	while ( ( '0' <= func[atr -> pos] ) && ( func[atr -> pos] <= '9' ) )
+	double k = 10;
+	unsigned point = 0;
+	unsigned checkF = 0;
+
+	while ( (( '0' <= func[atr -> pos] ) && ( func[atr -> pos] <= '9' ))\
+			|| (func[atr -> pos] == '.') )
 	{
-		value = value*10 + func[atr -> pos] - '0'; 
-		++(atr -> pos);
+		if ( func[atr -> pos] == '.' )
+		{
+			point = 1;
+			++(atr -> pos);
+			checkF = (atr -> pos);
+		}
+
+		if ( !point )
+		{
+			value = value*10 + func[atr -> pos] - '0'; 
+			++(atr -> pos);
+		}
+		else
+		{	
+			value += (double)(func[atr -> pos] - '0') / k ;
+			++(atr -> pos);
+			k *= 10;	
+		}
+		
 	}
+	
+	if ( checkF == (atr -> pos) )
+		assert ( "incorrect input Fraction" );
 
 	return value;
 }

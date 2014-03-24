@@ -8,12 +8,14 @@ int main ( int argc, char *argv[] )
 {
 	char *func = (char*) calloc ( LEN, sizeof(char) );
 	double result = 0;
-	
-	printf ( "Hello my freand!\n" );
+	atribut atr;
+	atr.pos = 0;	
+
+	printf ( "Hello my friend!\n" );
 	printf ( "Enter you function: " );
 	scanf  ( "%s", func );
 
-	result = Calculate ( func, 0.0 );
+	result = Calculate ( func, &atr );
 	
 	printf ( "Result = %lf\n", result );
 	printf ( "Goodbye\n" );

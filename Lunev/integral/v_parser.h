@@ -3,12 +3,17 @@
 
 typedef struct atribut{
 
-	double x;
+	double minX;
+	double maxX;
+	double lessThanMinY;
+	double moreThanMaxY;
+	char  *minY;
+	char  *maxY;	
 	unsigned pos;
 
 } atribut;
 
-double Calculate ( char *func, double x );
+double Calculate ( char *func, atribut *atr );
 double GetN  ( char *func, atribut *atr );
 double GetE  ( char *func, atribut *atr );
 double GetT  ( char *func, atribut *atr );

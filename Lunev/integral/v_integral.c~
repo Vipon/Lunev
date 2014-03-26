@@ -1,0 +1,48 @@
+//*************//
+//Made by Vipon//
+//*************//
+
+//C headers
+
+
+//Vipon headers
+#include "v_integral.h"
+#include "v_parser.h"
+
+//************************************************************************
+
+double Integral ( char *func, point *p )
+{
+
+	double result = 0;	
+	double f1 = 0;
+	double f2 = 0;
+	atribut atrY;
+	atribut atrI;
+	
+	double i = 0;
+	for ( i = (p -> minX); i < (p -> maxX); i += EPSILON )
+	{
+		(atrY.X)   = i;
+		(atrY.pos) = 0;
+		(atrI.X)   = i;	
+		(atrI.Y)   = Calculate ( (p -> Y), &atrY ) ;
+		(atrI.pos) = 0;
+		f1 = Calculate ( func, &atrI );
+
+		(atrY.X)   = i + EPSILON;
+		(atrY.pos) = 0;
+		(atrI.X)   = i + EPSILON;	
+		(atrI.Y)   = Calculate ( (p -> Y), &atrY ) ;
+		(atrI.pos) = 0;
+		
+		f2 = Calculate ( func, &atrI );
+
+		result += (f1 + f2) * EPSILON / 2;
+	}
+
+	return result;
+
+}
+
+//************************************************************************

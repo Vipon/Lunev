@@ -1,0 +1,33 @@
+//C headers
+#include <stdio.h>
+#include <stdlib.h>
+
+//Vipon headers
+#include "v_integral.h"
+
+const unsigned LEN = 1024;
+
+int main ( int argc, char *argv[] )
+{
+	char *func = (char*) calloc ( LEN, sizeof(char) );
+	double result = 0;
+	point p;
+
+	printf ( "Hello my friend!\n" );
+	printf ( "Enter you function: " );
+	scanf  ( "%s", func );
+	printf ( "Enter minX: " );
+	scanf  ( "%lf", &(p.minX) );
+	printf ( "Enter maxX: " );
+	scanf  ( "%lf", &(p.maxX) );
+	printf ( "Enter func of Y: " );
+	scanf  ( "%s", p.Y );
+
+	result = Integral ( func, &p );
+	
+	printf ( "Result = %lf\n", result );
+	printf ( "Goodbye\n" );
+	
+	return 0;
+
+}

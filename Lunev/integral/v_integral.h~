@@ -1,0 +1,20 @@
+//*************//
+//Made by Vipon//
+//*************//
+
+#ifndef V_INTEGRAL
+#define V_INTEGRAL
+
+typedef struct point {
+
+	double minX;
+	double maxX;
+	char   *Y;	
+
+} point;
+
+const double EPSILON = 0.0001;
+
+double Integral ( char *func, point *p );
+
+#endif

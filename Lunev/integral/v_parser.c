@@ -219,7 +219,7 @@ double GetEF ( char *func, atribut *atr )
 		{
 			(atr -> pos) += 3;
 			value = cos ( GetE ( func, atr ) );	
-			
+						
 			if ( func[atr -> pos] != ')' )
 			{
 				printf ( "ERROR : Incorrect vocabulary, skipped \')\'\n" );

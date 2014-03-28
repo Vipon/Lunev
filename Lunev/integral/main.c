@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/times.h>
 #include <pthread.h>
 
 //Vipon headers
@@ -11,57 +10,45 @@
 const unsigned LEN = 1024;
 const unsigned LENY = 32;
 
-/*typedef struct argI {
-	
-	char *func;
-	Dpoint *p;	
-} argI;*/
-
 int main ( int argc, char *argv[] )
 {
 	char *func = (char*) calloc ( LEN, sizeof(char) );
 	double result = 0;
-	struct tms Start;
-	struct tms End;
 	int n;
 	double minX;
 	double maxX;
-
+	
 	switch ( argc ) {
 	
-	case 1:
+	case 2:
 		n = 1; 
 		break;
-	case 2:
-		n = atoi ( argv[1] );
+	case 3:
+		n = atoi ( argv[2] );
 		break;
 	default:
 		printf ( "Too many arguments\n" );
 		return -1;
 	}
-	
+
+	FILE *integr = fopen ( argv[1], "r" );
+	if ( !integr )
+	{
+		printf ( "ERROR: i can't open file %s", argv[1] );
+		free ( func );
+		return -1;
+	}
+
 	Dpoint p;
 	p.minY  = (char*) calloc ( LENY, sizeof(char) );
 	p.maxY  = (char*) calloc ( LENY, sizeof(char) );
 
-	printf ( "Hello my friend!\n" );
-	printf ( "Enter you function: " );
-	scanf  ( "%s", func );
+	fscanf  ( integr, "%s", func );
+	fscanf  ( integr, "%lf", &(minX) );
+	fscanf  ( integr, "%lf", &(maxX) );
+	fscanf  ( integr, "%s", p.minY );
+	fscanf  ( integr, "%s", p.maxY );
 
-	printf ( "Enter minX: " );
-	scanf  ( "%lf", &(minX) );
-
-	printf ( "Enter maxX: " );
-	scanf  ( "%lf", &(maxX) );
-	
-	printf ( "Enter func of Ymin: " );
-	scanf  ( "%s", p.minY );
-	
-	printf ( "Enter func of Ymax: " );
-	scanf  ( "%s", p.maxY );
-
-	times ( &Start );
-	
 	double d = (maxX - minX) / n;
 	int i = 0;
 	pthread_t *tid = (pthread_t*) calloc ( n, sizeof(pthread_t) );
@@ -81,7 +68,7 @@ int main ( int argc, char *argv[] )
 		pthread_create ( &tid[i], NULL, (void*) &dIntegral, (void*) &arg[i] );	
 	}
 	
-	double **r;
+	double **r = (double**) calloc ( 1, sizeof(double*) );
 	for ( i = 0; i < n; ++i)
 	{
 		pthread_join ( tid[i], (void**)r );
@@ -89,18 +76,17 @@ int main ( int argc, char *argv[] )
 		free (*r);	
 	}
 
-	times ( &End );	
-	
 	printf ( "Result = %lf\n", result );
-	printf ( "Work Time = %ld\n", End.tms_utime - Start.tms_utime );
-	printf ( "Goodbye\n" );
 
 	free ( func );
 	free ( p.minY );
 	free ( p.maxY );
+	free ( p1 );
 	free ( arg );
-	//free ( result );
 	free ( tid );
+	free ( r );
+
+	fclose ( integr );
 		
 	return 0;
 
